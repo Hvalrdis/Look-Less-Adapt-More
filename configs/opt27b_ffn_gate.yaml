@@ -1,0 +1,49 @@
+model:
+  arch: blip2_opt
+  model_type: caption_coco_opt2.7b
+  pretrained: https://storage.googleapis.com/sfr-vision-language-research/LAVIS/models/BLIP2/blip2_caption_opt2.7b.pth
+  use_grad_checkpoint: true
+  freeze_vit: true
+datasets:
+  coco_caption:
+    vis_processor: {train: {name: blip2_image_train, image_size: 364}, eval: {name: blip_image_eval, image_size: 364}}
+    text_processor: {train: {name: blip_caption, prompt: "a photo of "}, eval: {name: blip_caption}}
+    build_info:
+      annotations: {train: {storage: data/coco/annotations/coco_karpathy_train.json}, val: {storage: data/coco/annotations/coco_karpathy_val.json}, test: {storage: data/coco/annotations/coco_karpathy_test.json}}
+      images: {storage: data/coco/images}
+run:
+  task: captioning
+  runner: runner_iter
+  evaluate: false
+  train_splits: [train]
+  valid_splits: [val]
+  test_splits: [test]
+  device: cuda
+  distributed: false
+  max_iters: 3000
+  iters_per_inner_epoch: 500
+  val_freq: 1
+  batch_size_train: 16
+  batch_size_eval: 16
+  num_workers: 4
+  accum_grad_iters: 1
+  max_len: 30
+  min_len: 8
+  num_beams: 5
+  seed: 42
+  output_dir: outputs/ffn_gate
+  init_lr: 5.0e-4
+  min_lr: 0.0
+  warmup_lr: 1.0e-6
+  warmup_steps: 100
+  weight_decay: 0.0
+  amp: true
+  ffn_gate_enabled: true
+  ffn_gate_group_size: 16
+  ffn_gate_lambda: 0.007
+  ffn_gate_penalty_p: 1.0
+  ffn_gate_scorer_only: true
+  enable_qformer_pruning: false
+  vision_token_prune_enabled: false
+  save_best_ckpt: false
+  save_last_ckpt: false
