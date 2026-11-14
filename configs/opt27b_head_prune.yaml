@@ -1,0 +1,53 @@
+model:
+  arch: blip2_opt
+  model_type: caption_coco_opt2.7b
+  pretrained: null  # REQUIRED: set the local RVT-recovered checkpoint before training
+  load_finetuned: false
+  use_grad_checkpoint: true
+  freeze_vit: true
+datasets:
+  coco_caption:
+    vis_processor: {train: {name: blip2_image_train, image_size: 364}, eval: {name: blip_image_eval, image_size: 364}}
+    text_processor: {train: {name: blip_caption, prompt: "a photo of "}, eval: {name: blip_caption}}
+    build_info:
+      annotations: {train: {storage: data/coco/annotations/coco_karpathy_train.json}, val: {storage: data/coco/annotations/coco_karpathy_val.json}, test: {storage: data/coco/annotations/coco_karpathy_test.json}}
+      images: {storage: data/coco/images}
+run:
+  task: captioning
+  runner: runner_iter
+  evaluate: false
+  train_splits: [train]
+  valid_splits: [val]
+  test_splits: [test]
+  device: cuda
+  distributed: false
+  max_iters: 500
+  iters_per_inner_epoch: 100
+  val_freq: 1
+  batch_size_train: 32
+  batch_size_eval: 32
+  num_workers: 4
+  accum_grad_iters: 1
+  max_len: 30
+  min_len: 8
+  num_beams: 5
+  seed: 42
+  output_dir: outputs/head_prune
+  init_lr: 5.0e-6
+  min_lr: 5.0e-7
+  warmup_lr: 5.0e-8
+  warmup_steps: 20
+  weight_decay: 0.02
+  amp: true
+  ffn_gate_enabled: false
+  enable_qformer_pruning: true
+  vision_token_prune_enabled: false
+  global_head_keep_ratio: 0.75
+  min_heads_per_layer: 1
+  score_mode: grad*act
+  k_folds: 5
+  importance_batches: 125
+  importance_batch_size: 4
+  export_slim_ckpt: true
+  export_slim_on_best: true
+  export_slim_path: outputs/head_prune/model_slim.pth

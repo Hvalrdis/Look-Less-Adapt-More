@@ -1,0 +1,4 @@
+Upstream package: salesforce-lavis 1.0.1
+Python: 3.10
+Source audit: matching LAVIS 1.0.1 source tree, read-only
+Git commit: unavailable in the audited checkout; do not infer a commit hash.
